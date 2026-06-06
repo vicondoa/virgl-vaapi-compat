@@ -12,16 +12,16 @@ The public flake exposes:
 | Output | Purpose |
 | --- | --- |
 | `.#virgl-vaapi-compat` / `.#default` | The generic `virtio_gpu_drv_video.so` shim package. |
-| `.#firefox-virgl-vaapi` | Optional Firefox package wrapper with scoped `LIBVA_*` environment, locked VA-API policies, and a virgl `glxtest` stub. |
+| `.#firefox` | Optional Firefox package wrapper with scoped `LIBVA_*` environment, locked VA-API policies, and a virgl `glxtest` stub. Its executable is `bin/firefox`, so all Firefox launches through that package use the wrapper. |
 | `.#compatibility-report` | JSON report of the evaluated nixpkgs/libva/Mesa/virglrenderer/crosvm/Cloud Hypervisor/Firefox versions and derived libva init symbol. |
 | `.#checks.<system>.default` | Build-time drift gate: compiles the shim, checks the exported libva ABI symbol, and runs the fake-driver behavior harness. |
-| `overlays.default` | Adds `virgl-vaapi-compat`, `firefox-virgl-vaapi`, `wrapFirefoxVirglVaapiCompat`, and the compatibility report to `pkgs`. |
+| `overlays.default` | Adds `virgl-vaapi-compat`, `wrapFirefoxVirglVaapiCompat`, and the compatibility report to `pkgs`, and replaces `pkgs.firefox` with the wrapped Firefox built from the unwrapped upstream `prev.firefox`. |
 
 Examples:
 
 ```bash
 nix build github:vicondoa/virgl-vaapi-compat#virgl-vaapi-compat
-nix build github:vicondoa/virgl-vaapi-compat#firefox-virgl-vaapi
+nix build github:vicondoa/virgl-vaapi-compat#firefox
 nix build github:vicondoa/virgl-vaapi-compat#compatibility-report
 cat result/compatibility-report.json
 ```
@@ -80,6 +80,11 @@ changes exported descriptor metadata after VA-API is in use.
 A conservative integration is to wrap only the affected application with
 `LIBVA_DRIVERS_PATH` and `LIBVA_DRIVER_NAME` rather than replacing the global VA
 driver search path for the whole system.
+
+If you apply the overlay in a NixOS guest, `pkgs.firefox` becomes the wrapped
+Firefox and still installs `bin/firefox`. Do not also install stock Firefox from
+the pre-overlay package set, or both packages will try to provide the same
+`bin/firefox` path.
 
 ## Updating and garbage collection
 

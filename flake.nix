@@ -20,7 +20,7 @@
       };
     in
     {
-      overlays.default = final: _prev: {
+      overlays.default = final: prev: {
         virgl-vaapi-compat = final.callPackage ./nix/package.nix { };
 
         virgl-vaapi-compat-compatibility-report =
@@ -34,8 +34,9 @@
             virgl-vaapi-compat = final.virgl-vaapi-compat;
           } // args);
 
-        firefox-virgl-vaapi = final.wrapFirefoxVirglVaapiCompat {
-          firefox = final.firefox;
+        firefox = final.wrapFirefoxVirglVaapiCompat {
+          firefox = prev.firefox;
+          aliasName = "firefox";
         };
       };
 
@@ -47,7 +48,7 @@
           default = pkgs.virgl-vaapi-compat;
           virgl-vaapi-compat = pkgs.virgl-vaapi-compat;
           compatibility-report = pkgs.virgl-vaapi-compat-compatibility-report;
-          firefox-virgl-vaapi = pkgs.firefox-virgl-vaapi;
+          firefox = pkgs.firefox;
         });
 
       checks = forAllSystems (system:
