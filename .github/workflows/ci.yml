@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# CI intentionally uses GitHub-hosted, unprivileged runners. The harness builds
+# and loads a fake VA-API driver in userspace, so it does not need GPU devices,
+# privileged containers, or self-hosted runner access.
+jobs:
+  make-test:
+    name: make test (Ubuntu packages)
+    runs-on: ubuntu-24.04
+    steps:
+      # Pinned to the actions/checkout v4 commit instead of a mutable tag.
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Install distro build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential \
+            pkg-config \
+            libva-dev \
+            binutils
+
+      - name: Run non-Nix tests
+        run: make test
+
+  nix:
+    name: optional Nix flake checks
+    runs-on: ubuntu-24.04
+    steps:
+      # Pinned to the actions/checkout v4 commit instead of a mutable tag.
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Detect flake
+        id: flake
+        shell: bash
+        run: |
+          if [[ -f flake.nix ]]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "No flake.nix present; skipping Nix checks on this baseline branch."
+          fi
+
+      # Pinned to the cachix/install-nix-action v31 commit instead of a mutable tag.
+      - name: Install Nix
+        if: steps.flake.outputs.present == 'true'
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Run full local gate
+        if: steps.flake.outputs.present == 'true'
+        run: nix develop --command ./tests/static.sh
