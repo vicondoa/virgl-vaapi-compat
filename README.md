@@ -80,7 +80,7 @@ through a higher-priority `LIBVA_DRIVERS_PATH`. The flake exposes:
 
 ```bash
 nix build github:vicondoa/virgl-vaapi-compat#virgl-vaapi-compat
-nix build github:vicondoa/virgl-vaapi-compat#firefox-virgl-vaapi
+nix build github:vicondoa/virgl-vaapi-compat#firefox
 nix build github:vicondoa/virgl-vaapi-compat#compatibility-report
 ```
 

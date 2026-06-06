@@ -3,7 +3,7 @@
 , makeWrapper
 , virgl-vaapi-compat
 , firefox
-, aliasName ? "firefox-virgl-vaapi"
+, aliasName ? firefoxBinary
 , firefoxBinary ? "firefox"
 , libvaDriverName ? "virtio_gpu"
 , libvaDriversPathExtra ? [ ]
@@ -75,7 +75,7 @@ let
 in
 
 stdenvNoCC.mkDerivation {
-  pname = "${firefoxName}-virgl-vaapi";
+  pname = firefoxName;
   version = firefoxVersion;
 
   nativeBuildInputs = [ makeWrapper ];
