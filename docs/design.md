@@ -26,7 +26,7 @@ accepted by affected clients.
 - a color management tool
 - a DMABUF allocator
 - a GPU synchronization layer
-- a Mesa, virglrenderer, crosvm, or Firefox fork
+- a Mesa, virglrenderer, crosvm, browser, or client fork
 - a generic workaround for all virtio-gpu graphics problems
 
 If a client fails before VA-API decode is selected, if H.264 profiles are not
@@ -36,10 +36,10 @@ use virtio-gpu video at all, this shim is not the primary fix.
 ## Why a shim
 
 The motivating failure was not that H.264 decode was unavailable. The guest
-virtio-gpu VA driver advertised H.264 decode and Firefox selected VA-API, but
-surface export failed at a descriptor compatibility boundary: virgl exported a
-`DRM_PRIME_2` I420 descriptor, and Firefox rejected that descriptor before
-falling through to its lower DMABUF YUV import path.
+virtio-gpu VA driver advertised H.264 decode and the affected client selected
+VA-API, but surface export failed at a descriptor compatibility boundary: virgl
+exported a `DRM_PRIME_2` I420 descriptor, and the client rejected that descriptor
+before falling through to its lower DMABUF YUV import path.
 
 A client patch that allowed that I420 descriptor can work, but it ties the
 workaround to one client. A VA driver shim keeps clients unpatched and confines

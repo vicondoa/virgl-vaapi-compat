@@ -50,16 +50,14 @@ The shim cannot add decoder support. Fix the underlying virtio-gpu/virgl video
 configuration first. In the motivating environment, enabling virgl video support
 made the guest VA-API driver advertise H.264 decode profiles.
 
-## Firefox still falls back to software
+## The client still falls back to software
 
 Confirm all of the following:
 
-- Firefox selected VA-API decode (`hw: "true"`, `VAAPI_VLD`, or equivalent logs)
-- the baseline failure resembles `CreateImageVAAPI(): failed to get
-  VideoFrameSurface` or `VAAPI dmabuf allocation error`
+- the client selected VA-API decode according to its own logs or telemetry
+- the baseline failure is a DMABUF/image allocation failure at surface export
 - shim debug logs show an I420 `DRM_PRIME_2` descriptor rewrite
-- the issue is not a separate sandbox, Wayland/EGL, codec, or GPU-process
-  problem
+- the issue is not a separate sandbox, display, codec, or GPU-process problem
 
 If the shim never sees a matching export, it is not addressing the active
 failure.
