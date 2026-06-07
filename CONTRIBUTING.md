@@ -65,10 +65,12 @@ with the command attempted and the failure.
 
 ## Pull requests
 
-After initial repository bootstrap, nobody direct-pushes to `main`. Start from a
-topic branch, run the relevant local validation, open a pull request, wait for
-required CI and conversation resolution, and squash-merge only after review
-requirements are satisfied.
+After initial repository bootstrap, nobody direct-pushes to `main`. GitHub's
+required approval count is intentionally 0 so the solo maintainer can merge
+their own PR after CI and any required panel sign-off. Start from a topic
+branch, run the relevant local validation, open a pull request, wait for
+required CI and conversation resolution, and squash-merge only after required
+checks and panel requirements are satisfied.
 
 Pull requests should include:
 
@@ -129,7 +131,8 @@ The public `main` branch should be protected after the initial bootstrap push:
 
 - block direct pushes for everyone;
 - require pull requests before merge;
-- require at least one approving review for ordinary changes;
+- keep GitHub-native required approval count at 0 for solo-maintainer
+  self-merge;
 - require the documented 8/8 panel for non-trivial plan-driven work;
 - dismiss stale approvals when new commits are pushed;
 - require the `make test (Ubuntu packages)` and `optional Nix flake checks`
