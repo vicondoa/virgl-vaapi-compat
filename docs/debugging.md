@@ -8,18 +8,17 @@ DMABUF fails because the client rejects the exported DRM PRIME descriptor shape.
 
 A prior debugging session (`f15bd57d-e724-47f2-9d2e-012652265f5e`) found:
 
-- Firefox cannot use the `virtio_media` `/dev/video0` V4L2 M2M path directly;
-  Firefox Linux hardware decode uses VA-API.
+- The original motivating browser client used VA-API for this hardware decode
+  path rather than the `virtio_media` `/dev/video0` V4L2 M2M path directly.
 - Enabling `graphics.virglVideo = true` made the guest virtio-gpu VA-API driver
   expose H.264 profiles.
-- Firefox selected H.264 VA-API decode (`hw: "true"`, `VAAPI_VLD`) but failed
-  with messages such as `CreateImageVAAPI(): failed to get VideoFrameSurface`
-  and `VAAPI dmabuf allocation error`, then fell back to software decode.
+- The client selected H.264 VA-API decode but rejected the exported DMABUF
+  descriptor, then fell back to software decode.
 - The root cause was virgl exporting `DRM_PRIME_2` `VA_FOURCC_I420` descriptors
-  while Firefox rejected that descriptor before reaching its lower DMABUF YUV
+  while the client rejected that descriptor before reaching its lower DMABUF YUV
   import path.
-- A first workaround patched Firefox's I420 allowlist. This project is the
-  preferred wrapper/shim approach because it leaves Firefox unpatched.
+- A first workaround patched the client allowlist. This project is the preferred
+  wrapper/shim approach because it leaves clients unpatched.
 
 Known stack versions from that investigation:
 
@@ -31,9 +30,6 @@ Known stack versions from that investigation:
 | virglrenderer | `1.3.0` |
 | crosvm | `4c80bf3523cf84114054209d88a7af3eefd8423f` |
 | Cloud Hypervisor | `52.0` |
-| Firefox | `151.0.2` |
-| Firefox Developer Edition | `152.0b1` |
-
 ## Establish what path the client uses
 
 First separate three different acceleration paths:
@@ -42,9 +38,9 @@ First separate three different acceleration paths:
 2. **VA-API** through libva and `virtio_gpu_drv_video.so`
 3. **Software decode**
 
-For Firefox on Linux, the relevant hardware decode path is VA-API. Seeing a
-`virtio_media` node is not enough; Firefox will not directly use that V4L2 M2M
-path for this class of decode.
+For the motivating browser client, the relevant hardware decode path was VA-API.
+Seeing a `virtio_media` node was not enough because that client did not directly
+use the V4L2 M2M path for this class of decode.
 
 ## Check VA-API visibility
 
@@ -85,35 +81,6 @@ If libva cannot initialize the shim, confirm that the build-time libva headers
 and runtime libva agree. Rebuild with the target system's `pkg-config` and libva
 headers when in doubt.
 
-## Firefox VA-API logging
-
-Firefox logging can show whether VA-API decode is selected and where it fails.
-Useful environment variables include:
-
-```bash
-MOZ_LOG="PlatformDecoderModule:5,FFmpegVideo:5,DMABUF:5,WidgetDMABuf:5,VAAPI:5"
-MOZ_LOG_FILE=firefox-vaapi.log
-LIBVA_MESSAGING_LEVEL=2
-LIBVA_DRIVER_NAME=virtio_gpu
-```
-
-Run Firefox from a terminal with those variables, reproduce playback, then check
-for evidence that the VA-API decoder was selected:
-
-- `hw: "true"`
-- `VAAPI_VLD`
-- H.264 profile selection
-
-Then look for the failure signatures:
-
-- `CreateImageVAAPI(): failed to get VideoFrameSurface`
-- `VAAPI dmabuf allocation error`
-- fallback from hardware to software decode
-
-The exact log module names can change between Firefox releases. If a module is
-silent, keep `PlatformDecoderModule`, `DMABUF`, and `WidgetDMABuf` enabled and
-consult the Firefox version's current logging names.
-
 ## DMABUF and I420 failure signature
 
 The failure this shim targets has a specific shape:
@@ -140,7 +107,7 @@ LIBVA_DRIVERS_PATH=/path/to/shim/lib/dri${LIBVA_DRIVERS_PATH:+:$LIBVA_DRIVERS_PA
 vainfo
 ```
 
-For a client such as Firefox, include the same shim variables in the launch
+For an affected client, include the same shim variables in the launch
 environment. When the hook is installed and a matching export occurs, stderr may
 include lines like:
 

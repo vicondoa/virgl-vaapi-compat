@@ -7,21 +7,19 @@ and the shim `dlopen()`s the real driver.
 
 ## Flake outputs
 
-The public flake exposes:
+The generic shim integration points are:
 
 | Output | Purpose |
 | --- | --- |
 | `.#virgl-vaapi-compat` / `.#default` | The generic `virtio_gpu_drv_video.so` shim package. |
-| `.#firefox` | Optional Firefox package wrapper with scoped `LIBVA_*` environment, locked VA-API policies, and a virgl `glxtest` stub. Its executable is `bin/firefox`, so all Firefox launches through that package use the wrapper. |
-| `.#compatibility-report` | JSON report of the evaluated nixpkgs/libva/Mesa/virglrenderer/crosvm/Cloud Hypervisor/Firefox versions and derived libva init symbol. |
+| `.#compatibility-report` | JSON report of the evaluated generic graphics stack versions and derived libva init symbol. |
 | `.#checks.<system>.default` | Build-time drift gate: compiles the shim, checks the exported libva ABI symbol, and runs the fake-driver behavior harness. |
-| `overlays.default` | Adds `virgl-vaapi-compat`, `wrapFirefoxVirglVaapiCompat`, and the compatibility report to `pkgs`, and replaces `pkgs.firefox` with the wrapped Firefox built from the unwrapped upstream `prev.firefox`. |
+| `overlays.default` | Adds the generic shim package and compatibility report to `pkgs` for downstream consumers. |
 
 Examples:
 
 ```bash
 nix build github:vicondoa/virgl-vaapi-compat#virgl-vaapi-compat
-nix build github:vicondoa/virgl-vaapi-compat#firefox
 nix build github:vicondoa/virgl-vaapi-compat#compatibility-report
 cat result/compatibility-report.json
 ```
@@ -81,10 +79,10 @@ A conservative integration is to wrap only the affected application with
 `LIBVA_DRIVERS_PATH` and `LIBVA_DRIVER_NAME` rather than replacing the global VA
 driver search path for the whole system.
 
-If you apply the overlay in a NixOS guest, `pkgs.firefox` becomes the wrapped
-Firefox and still installs `bin/firefox`. Do not also install stock Firefox from
-the pre-overlay package set, or both packages will try to provide the same
-`bin/firefox` path.
+Downstream clients should wrap only their affected application with
+`LIBVA_DRIVERS_PATH` and `LIBVA_DRIVER_NAME`. Application-specific packages,
+browser policies, and launch wrappers belong outside this generic shim
+repository.
 
 ## Updating and garbage collection
 

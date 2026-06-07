@@ -86,7 +86,7 @@ deployment glue, unless the maintainer explicitly approves that scope.
 This repository may document integration points, but it must not silently make
 host-specific changes for a consumer.
 
-## Nixling-style review panel policy
+## 8-reviewer panel sign-off policy
 
 Non-trivial plan-driven or multi-phase work requires unanimous 8/8 panel
 approval at each phase boundary before moving to the next phase. The required
@@ -134,7 +134,27 @@ If there is uncertainty about whether a change is trivial, use the panel.
 
 ## Branch protection expectation
 
-`main` is intended to be protected once the bootstrap branch lands. Require PRs,
-fresh approval after new commits, passing CI jobs, and maintainer bypass only for
-emergency repository repair. Non-trivial plan-driven work still requires the 8/8
-panel even if GitHub's branch rule only enforces ordinary PR approval.
+After initial repository bootstrap, nobody direct-pushes to `main`. All changes
+use this flow:
+
+1. Create a topic branch.
+2. Run the relevant local validation for the changed scope.
+3. Open a pull request.
+4. Wait for required CI to pass and required conversations to be resolved.
+5. Squash-merge the PR after review requirements are met.
+
+Expected `main` protection settings:
+
+- block direct pushes for everyone;
+- require pull requests before merge;
+- require PR review before merge;
+- dismiss stale approvals when new commits are pushed;
+- require required CI jobs to pass;
+- require all conversations to be resolved;
+- disallow force-pushes;
+- disallow branch deletion;
+- restrict maintainer bypass to emergency repository repair and document any
+  bypass in the PR or follow-up issue.
+
+Non-trivial plan-driven work still requires the 8/8 panel even if GitHub's
+branch rule only enforces ordinary PR approval.

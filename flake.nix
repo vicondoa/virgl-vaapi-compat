@@ -28,16 +28,6 @@
             pkgs = final;
             inherit nixpkgsRev;
           };
-
-        wrapFirefoxVirglVaapiCompat = args:
-          final.callPackage ./nix/firefox-wrapper.nix ({
-            virgl-vaapi-compat = final.virgl-vaapi-compat;
-          } // args);
-
-        firefox = final.wrapFirefoxVirglVaapiCompat {
-          firefox = prev.firefox;
-          aliasName = "firefox";
-        };
       };
 
       packages = forAllSystems (system:
@@ -48,7 +38,6 @@
           default = pkgs.virgl-vaapi-compat;
           virgl-vaapi-compat = pkgs.virgl-vaapi-compat;
           compatibility-report = pkgs.virgl-vaapi-compat-compatibility-report;
-          firefox = pkgs.firefox;
         });
 
       checks = forAllSystems (system:
@@ -95,7 +84,6 @@
 
       lib = {
         libvaAbi = import ./nix/libva-abi.nix;
-        firefoxWrapper = import ./nix/firefox-wrapper.nix;
       };
     };
 }

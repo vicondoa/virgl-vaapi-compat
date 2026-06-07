@@ -25,9 +25,9 @@ Compare the same workload with and without the shim:
 4. Confirm playback continues without DMABUF/image allocation failures.
 5. Confirm there are no regressions in color, stability, or fallback behavior.
 
-For Firefox, useful evidence includes VA-API decode logs showing hardware decode
-selected and no recurrence of `CreateImageVAAPI(): failed to get
-VideoFrameSurface` or `VAAPI dmabuf allocation error`.
+Useful evidence includes client logs showing hardware decode selected, no
+recurrence of the original DMABUF/image allocation failure, and no shim debug
+messages indicating descriptor rewrites during normal playback.
 
 ## Keep the test harness
 

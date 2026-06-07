@@ -72,24 +72,23 @@ Do not overwrite the only copy of the real driver with the shim. The shim must
 be able to `dlopen()` the real `virtio_gpu_drv_video.so`, preferably through an
 absolute path compiled with `REAL_DRIVER=...`.
 
-## Nix and Firefox
+## Nix
 
 Nix/NixOS users can package the shim by setting `REAL_DRIVER` to the real Mesa
 virtio-gpu VA driver path in the target graphics closure and exposing the shim
-through a higher-priority `LIBVA_DRIVERS_PATH`. The flake exposes:
+through a higher-priority `LIBVA_DRIVERS_PATH`. The public generic flake
+documents the shim package, checks, compatibility report, and overlay:
 
 ```bash
 nix build github:vicondoa/virgl-vaapi-compat#virgl-vaapi-compat
-nix build github:vicondoa/virgl-vaapi-compat#firefox
 nix build github:vicondoa/virgl-vaapi-compat#compatibility-report
 ```
 
 See [`docs/nix.md`](docs/nix.md).
 
-Firefox users should treat this as one possible workaround for a VA-API DMABUF
-format-descriptor mismatch, not as a general Firefox acceleration switch. You
-still need a working VA-API virtio-gpu stack and Firefox VA-API enabled. See
-[`docs/firefox.md`](docs/firefox.md) and [`docs/debugging.md`](docs/debugging.md).
+Client-specific packaging, browser policies, wrapper packages, and application
+logging recipes belong in downstream client repositories. This generic repo only
+documents the libva shim boundary.
 
 ## Safety and scope
 
@@ -122,7 +121,6 @@ clients accept the existing virgl I420 descriptor path. See
 - [`docs/design.md`](docs/design.md) - design goals, non-goals, and constraints
 - [`docs/debugging.md`](docs/debugging.md) - reproducing and diagnosing the
   motivating failure mode
-- [`docs/firefox.md`](docs/firefox.md) - Firefox-specific VA-API notes
 - [`docs/nix.md`](docs/nix.md) - Nix/NixOS integration notes
 - [`docs/troubleshooting.md`](docs/troubleshooting.md) - common symptoms and
   fixes
