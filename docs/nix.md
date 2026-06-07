@@ -15,6 +15,7 @@ The generic shim integration points are:
 | `.#compatibility-report` | JSON report of the evaluated generic graphics stack versions and derived libva init symbol. |
 | `.#checks.<system>.default` | Build-time drift gate: compiles the shim, checks the exported libva ABI symbol, and runs the fake-driver behavior harness. |
 | `overlays.default` | Adds the generic shim package and compatibility report to `pkgs` for downstream consumers. |
+| `lib.libvaAbi` | Helper function for downstream flakes that need to derive the libva driver init ABI from a libva package version. |
 
 Examples:
 
@@ -67,6 +68,26 @@ The Nix package follows the same evidence-based policy: version changes are
 allowed when the active headers compile, the expected init symbol is exported,
 and the fake-driver harness passes. Actual API or behavior drift fails the
 package/check instead of relying on a fixed allowlist of exact versions.
+
+## `lib.libvaAbi`
+
+`lib.libvaAbi` is a small helper for downstream flakes that need to derive the
+libva driver entry point from a package version without importing this package
+derivation. Call it with a nixpkgs `lib` and a libva package version:
+
+```nix
+let
+  abi = virgl-vaapi-compat.lib.libvaAbi {
+    inherit (pkgs) lib;
+    libvaVersion = pkgs.libva.version;
+  };
+in abi.initSymbol
+```
+
+The returned attribute set includes `initMajor`, `initMinor`, `initAbi`,
+`initSymbol`, and `expectedPkgConfigVersionPrefix`. It is intentionally limited
+to libva ABI derivation; it does not imply that a full graphics stack is known
+good without the package checks.
 
 ## VM integration
 

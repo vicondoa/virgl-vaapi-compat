@@ -6,7 +6,7 @@ DMABUF fails because the client rejects the exported DRM PRIME descriptor shape.
 
 ## Known motivating investigation
 
-A prior debugging session (`f15bd57d-e724-47f2-9d2e-012652265f5e`) found:
+A prior investigation found:
 
 - The original motivating browser client used VA-API for this hardware decode
   path rather than the `virtio_media` `/dev/video0` V4L2 M2M path directly.
