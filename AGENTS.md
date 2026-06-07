@@ -134,20 +134,23 @@ If there is uncertainty about whether a change is trivial, use the panel.
 
 ## Branch protection expectation
 
-After initial repository bootstrap, nobody direct-pushes to `main`. All changes
-use this flow:
+After initial repository bootstrap, nobody direct-pushes to `main`. GitHub's
+required approval count is intentionally 0 so the solo maintainer can merge
+their own PR after CI and any required panel sign-off. All changes use this
+flow:
 
 1. Create a topic branch.
 2. Run the relevant local validation for the changed scope.
 3. Open a pull request.
 4. Wait for required CI to pass and required conversations to be resolved.
-5. Squash-merge the PR after review requirements are met.
+5. Squash-merge the PR after required checks and any panel requirements are met.
 
 Expected `main` protection settings:
 
 - block direct pushes for everyone;
 - require pull requests before merge;
-- require PR review before merge;
+- keep GitHub-native required approval count at 0 for solo-maintainer
+  self-merge;
 - dismiss stale approvals when new commits are pushed;
 - require required CI jobs to pass;
 - require all conversations to be resolved;
