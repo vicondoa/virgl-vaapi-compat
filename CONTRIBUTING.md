@@ -65,6 +65,11 @@ with the command attempted and the failure.
 
 ## Pull requests
 
+After initial repository bootstrap, nobody direct-pushes to `main`. Start from a
+topic branch, run the relevant local validation, open a pull request, wait for
+required CI and conversation resolution, and squash-merge only after review
+requirements are satisfied.
+
 Pull requests should include:
 
 - A concise summary.
@@ -88,8 +93,8 @@ Keep unrelated changes in separate commits. Avoid vague subjects such as
 
 ## Review panel expectations
 
-Non-trivial plan-driven or multi-phase work follows the same review-panel style
-used by `nixling`.
+Non-trivial plan-driven or multi-phase work follows the 8-reviewer panel
+sign-off policy.
 
 At each phase boundary, work must receive 8/8 sign-off before the next phase
 starts:
@@ -122,11 +127,15 @@ notes, and integration instructions may not.
 
 The public `main` branch should be protected after the initial bootstrap push:
 
+- block direct pushes for everyone;
 - require pull requests before merge;
 - require at least one approving review for ordinary changes;
 - require the documented 8/8 panel for non-trivial plan-driven work;
 - dismiss stale approvals when new commits are pushed;
 - require the `make test (Ubuntu packages)` and `optional Nix flake checks`
   workflow jobs to pass;
+- require all conversations to be resolved before merge;
+- disallow force-pushes;
+- disallow branch deletion;
 - restrict maintainer bypass to emergency repository repair and document any
   bypass in the PR or follow-up issue.

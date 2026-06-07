@@ -71,13 +71,6 @@ let
       version = firstVersion [ [ "cloud-hypervisor" ] ];
       sourceRev = firstSourceRev [ [ "cloud-hypervisor" ] ];
     };
-    firefox = {
-      stableVersion = firstVersion [ [ "firefox" ] ];
-      developerEditionVersion = firstVersion [
-        [ "firefox-devedition" ]
-        [ "firefox-developer-edition" ]
-      ];
-    };
     checks = {
       api = "compile against active libva.dev";
       abi = "export exactly ${abi.initSymbol}";
